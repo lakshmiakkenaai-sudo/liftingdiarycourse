@@ -51,31 +51,33 @@ export default async function DashboardPage({
           ) : (
             <div className="flex flex-col gap-3">
               {workouts.map((workout) => (
-                <Card key={workout.id}>
-                  <CardHeader>
-                    <CardTitle>{workout.title ?? "Workout"}</CardTitle>
-                  </CardHeader>
-                  {workout.exercises.length > 0 && (
-                    <CardContent className="flex flex-col gap-2">
-                      {workout.exercises.map((exercise) => (
-                        <div key={exercise.id}>
-                          <p className="font-medium">{exercise.name}</p>
-                          {exercise.sets.length > 0 && (
-                            <div className="mt-1 flex flex-col gap-1">
-                              {exercise.sets.map((set) => (
-                                <CardDescription key={set.id}>
-                                  Set {set.setNumber ?? "?"}
-                                  {set.reps != null ? ` — ${set.reps} reps` : ""}
-                                  {set.weight != null ? ` @ ${set.weight} kg` : ""}
-                                </CardDescription>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </CardContent>
-                  )}
-                </Card>
+                <Link key={workout.id} href={`/dashboard/workouts/${workout.id}`}>
+                  <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+                    <CardHeader>
+                      <CardTitle>{workout.title ?? "Workout"}</CardTitle>
+                    </CardHeader>
+                    {workout.exercises.length > 0 && (
+                      <CardContent className="flex flex-col gap-2">
+                        {workout.exercises.map((exercise) => (
+                          <div key={exercise.id}>
+                            <p className="font-medium">{exercise.name}</p>
+                            {exercise.sets.length > 0 && (
+                              <div className="mt-1 flex flex-col gap-1">
+                                {exercise.sets.map((set) => (
+                                  <CardDescription key={set.id}>
+                                    Set {set.setNumber ?? "?"}
+                                    {set.reps != null ? ` — ${set.reps} reps` : ""}
+                                    {set.weight != null ? ` @ ${set.weight} kg` : ""}
+                                  </CardDescription>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </CardContent>
+                    )}
+                  </Card>
+                </Link>
               ))}
             </div>
           )}
