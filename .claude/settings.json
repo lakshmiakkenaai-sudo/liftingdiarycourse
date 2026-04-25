@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath // empty'); if echo \"$FILE\" | grep -qE '.*/docs/[^/]+\\.md$'; then DOCPATH=\"/docs/$(basename \"$FILE\")\"; CLAUDE_MD=\"/Users/hemanthkumargullipalli/liftingdiarycourse/CLAUDE.md\"; if ! grep -qF \"$DOCPATH\" \"$CLAUDE_MD\"; then python3 -c \"\nimport re, sys\ncontent = open('$CLAUDE_MD').read()\nlines = content.split('\\n')\nlast = -1\nfor i, l in enumerate(lines):\n    if re.match(r'- /docs/', l):\n        last = i\nif last >= 0:\n    lines.insert(last + 1, '- $DOCPATH')\n    open('$CLAUDE_MD', 'w').write('\\n'.join(lines))\n    print('Added $DOCPATH to CLAUDE.md')\n\"; fi; fi",
+            "statusMessage": "Checking if CLAUDE.md needs updating..."
+          }
+        ]
+      }
+    ]
+  }
+}

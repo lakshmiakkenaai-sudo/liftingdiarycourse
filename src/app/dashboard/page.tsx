@@ -1,6 +1,8 @@
 import { auth } from "@clerk/nextjs/server"
 import { format } from "date-fns"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { getWorkoutsForUserOnDate } from "@/data/workouts"
 import { CalendarPicker } from "./calendar-picker"
 
@@ -37,8 +39,13 @@ export default async function DashboardPage({
 
           {workouts.length === 0 ? (
             <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                No workouts logged for this day.
+              <CardContent className="flex flex-col items-center gap-4 py-8 text-center text-muted-foreground">
+                <p>No workouts logged for this day.</p>
+                <Button asChild>
+                  <Link href={`/dashboard/workout/new?date=${format(selectedDate, "yyyy-MM-dd")}`}>
+                    Log new workout
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           ) : (
