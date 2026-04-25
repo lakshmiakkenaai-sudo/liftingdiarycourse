@@ -2,6 +2,55 @@ import { db } from "@/db"
 import { workouts, workoutExercises, exercises, sets } from "@/db/schema"
 import { eq, and, gte, lt } from "drizzle-orm"
 
+export async function createWorkout(userId: string, title: string | null, notes: string | null, startedAt: Date) {
+  const [workout] = await db
+    .insert(workouts)
+    .values({ userId, title, notes, startedAt })
+    .returning()
+  return workout
+}
+
+type SetInput = { reps?: number; weight?: number; notes?: string }
+type ExerciseInput = { exerciseId: number; sets: SetInput[] }
+
+export async function createWorkoutWithExercises(
+  userId: string,
+  title: string | null,
+  notes: string | null,
+  startedAt: Date,
+  exerciseInputs: ExerciseInput[],
+) {
+  return db.transaction(async (tx) => {
+    const [workout] = await tx
+      .insert(workouts)
+      .values({ userId, title, notes, startedAt })
+      .returning()
+
+    for (let i = 0; i < exerciseInputs.length; i++) {
+      const { exerciseId, sets: setInputs } = exerciseInputs[i]
+
+      const [we] = await tx
+        .insert(workoutExercises)
+        .values({ workoutId: workout.id, exerciseId, order: i })
+        .returning()
+
+      if (setInputs.length > 0) {
+        await tx.insert(sets).values(
+          setInputs.map((s, idx) => ({
+            workoutExerciseId: we.id,
+            setNumber: idx + 1,
+            reps: s.reps ?? null,
+            weight: s.weight != null ? String(s.weight) : null,
+            notes: s.notes ?? null,
+          })),
+        )
+      }
+    }
+
+    return workout
+  })
+}
+
 export async function getWorkoutsForUserOnDate(userId: string, date: Date) {
   const start = new Date(date)
   start.setHours(0, 0, 0, 0)
